@@ -3,10 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>hadooptest</groupId>
   <artifactId>com.naver</artifactId>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
   <name>com.naver Maven Webapp</name>
   <url>http://maven.apache.org</url>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -47,9 +48,24 @@
       <artifactId>hadoop-core</artifactId>
       <version>1.2.1</version>
     </dependency>
-
   </dependencies>
+
   <build>
-    <finalName>com.naver</finalName>
+    <finalName>SingleFile-Writer-Reader</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.3</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 </project>
