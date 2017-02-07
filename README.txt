@@ -1,5 +1,9 @@
 HADOOP STUDY
 
+프로그램 실행법
+
+./bin/hadoop jar WordCountMapReduce.jar com.naver.Main input파일 output파일
+
 MapReduce
 
 MapReduce개념
