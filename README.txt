@@ -121,3 +121,69 @@ MapReduce 프레임워크는 이러한 작업이 진행될 수 있게 셔플을 
 
 출력
 리듀스함수가 출력한 데이터는 HDFS에 저장된다. 리듀스 개수만큼 출력파일이 생성된다.
+
+
+2.3 프로그래밍 요소
+
+2.3.1 데이터 타입
+MapReduce는 네트워크 통신을 위한 최적화된 객체로 WritableComparable 인터페이스를 제공한다.
+MapReduce의 Key, Value로 사용되는 데이터 타입은 전부 WritableComparable인터페이스가 구현되어 있어야 한다.
+하둡에서 기본적인 데이터 타입은 제공해주지만 개발자가 직접 WritableComparable 인터페이스를 이용하여 구현할 수도 있다.
+
+Writable
+- write, readFields 메서드를 제공해주는 인터페이스이다.
+write메서드의 경우 데이터값을 직렬화하는 역할을 하고 readFields메서드는 직렬화된 데이터를 해제해서 읽는 역할을 한다.
+데이터 포맷 클래스는 이 두메서드를 구현하는 부분에서 데이터를 읽고 쓰는 기능을 처리한다.
+Boolean -> BooleanWritable
+단일 byte -> ByteWritable
+Double -> DoubleWritable
+Float -> FloatWritable
+Integer -> IntWritable
+Long -> LongWritable
+문자열(UTF-8형식) -> TextWritable
+데이터값이없을경우 -> NullWritable
+
+Comparable
+- java.lang 패키지의 인터페이스로 compareTo 메서드를 제공한다.
+
+2.3.2 InputFormat
+위의 2.2.1에서 얘기했듯이 입력파일이 들어오면 스플릿 과정을 통해 입력스플릿으로 만든다.
+그리고 만들어진 입력스플릿을 Map단계의 입력값으로 사용을한다.
+InputFormat은 추상클래스로서 map메서드의 입력파라미터로 사용할 수 있게 만드는 역할을 한다.
+getSplit, createRecordReader 메서드를 제공한다.
+
+getSplit
+-입력 스플릿을 map메서드가 사용할 수 있게 해주는 메서드이다.
+
+createRecordReader
+- 위의 2.2.1에서 얘기했듯이 입력스플릿을 레코드읽기라는 과정을 통해 map메서드에서 입력파라미터로 사용된다.
+이 메서드는 map메서드가 입력스플릿을 키와 목록의 형태로 사용할 수 있게 RecordReader라는 객체를 생성한다.
+TextInputFormat - 텍스트파일을 분석할 때 사용하며 개행문자(\n)를 기준으로 레코드를 구분한다. Key는 라인번호이며 LongWritable, Value는 라인내용이며 Text타입.
+KeyValueTextInputFormat - 텍스트파일을 분석할 때 라인번호가 아닌 임의의 키값을 지정해 사용할때 사용한다.
+NLineInputFormat - 맵태스크가 입력받을 텍스트파일의 라인수를 제한할 때 사용한다.
+DelegatingInputFormat - 여러개의 서로 다른 입력포맷을 사용하는 경우에 각 경로에 대한 작업을 위임할때 사용한다.
+CombineFileInputFormat - 위에 나온 InputFormat들은 파일당 스플릿을 생성하지만 CombineFileInputFormat은 여러 개의 파일을 스플릿으로 묶어서 사용한다
+
+2.3.3 매퍼
+매퍼는 MapReduce에서 map메서드의 기능을 수행한다.
+매퍼는 Key와 Value로 구성된 입력데이터를 전달받아 가공하고 분류해 새로운 데이터 목록을 생성한다.
+위에서 계속 얘기해왔던 맵태스크가 매퍼클래스를 의미한다.
+매퍼클래스는 기본적으로 제공되어 그대로 사용할 수 있지만 보통은 사용하려는 목적에 따라 구현하여 사용한다.
+매퍼클래스의 경우 제네릭 파라미터를 사용해 클래스를 정의한다.
+public class Mapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT>
+KEYIN - 입력키유형, VALUEIN - 입력값유형, KEYOUT - 출력키유형, VALUEOUT - 출력값유형
+매퍼클래스는 MapContext를 상속받은 Context객체를 생성한다.
+생성된 context객체를 통해 job에 대한 정보를 얻어오고, 입력스플릿을 레코드단위로 읽는다.
+기본 Mapper클래스의 Context생성구문에서 RecordReader<KEYIN, VALUEIN> reader라는 파라미터를 받는데 2.3.2의 InputFormat에서 얘기했듯이 입력스플릿이 Key와 Value로 전달되는거다.
+
+매퍼클래스의 동작방식은
+while (context.nextKeyValue()) {
+    map(context.getCurrentKey(), context.getCurrentValue(), context);
+}
+와 같이 동작한다.
+따라서 MapReduce프로그램을 개발할 때 대부분 map메서드를 재정의하여 자기가 원하는 동작을 시킨다.
+
+2.3.4 파티셔너
+파티셔너는 맵태스크의 출력데이터가 어떤 리듀스태스크로 전달될지 결정하는 역할을 한다.
+추상클래스인 Partitioner클래스를 상속받아 getPartition메서드를 재정의해 사용할 수 있다.
+기본적으로 HashPartitioner를 사용한다.
