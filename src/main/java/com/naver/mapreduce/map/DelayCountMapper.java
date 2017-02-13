@@ -8,7 +8,9 @@
 package com.naver.mapreduce.map;
 
 import java.io.IOException;
+import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -32,14 +34,13 @@ public class DelayCountMapper extends Mapper<LongWritable, Text, Text, IntWritab
 	}
 
 	public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-		if ("departure".equals(workType)) {
-			DepartureDelayCountMapper departureDelayCountMapper = new DepartureDelayCountMapper();
-			departureDelayCountMapper.map(key, value, context);
-		}
+		WorkType workTypeProcess = WorkType.getInstance(workType);
 
-		if ("arrival".equals(workType)) {
-			ArrivalDelayCountMapper arrivalDelayCountMapper = new ArrivalDelayCountMapper();
-			arrivalDelayCountMapper.map(key, value, context);
+		Map<String, Object> map = workTypeProcess.getProcessMap().runMap(value);
+
+		if (MapUtils.getInteger(map, "value") != null) {
+			outputKey.set(MapUtils.getString(map, "key"));
+			context.write(outputKey, outputValue);
 		}
 	}
 

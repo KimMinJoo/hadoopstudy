@@ -4,7 +4,8 @@ HADOOP STUDY
 출발 지연 데이터분석프로그램
 com.naver.DepartureDelayCount클래스로 실행.
 실행법
-./bin/hadoop jar AirlienDealyCount.jar inputdir outputdir
+./bin/hadoop jar AirlienDealyCount.jar -D workType=명령 inputdir outputdir
+명령은 이 프로그램에선 Departure, Arrival두개가 존재한다.
 
 MapReduce 기초다지기
 
