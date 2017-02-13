@@ -19,7 +19,7 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
-import com.naver.mapreduce.map.DepartureDelayCountMapper;
+import com.naver.mapreduce.map.ArrivalDelayCountMapper;
 import com.naver.mapreduce.reduce.DelayCountReducer;
 
 /**
@@ -37,7 +37,7 @@ public class DepartureDelayCount {
 		}
 
 		//잡 이름 설정
-		Job job = new Job(configuration, "DepatureDelayCount");
+		Job job = new Job(configuration, "ArrivalDelayCount");
 
 		//입출력 데이터 경로 설정
 		FileInputFormat.addInputPath(job, new Path(args[0]));
@@ -45,7 +45,7 @@ public class DepartureDelayCount {
 
 		//잡 클래스 설정
 		job.setJarByClass(DepartureDelayCount.class);
-		job.setMapperClass(DepartureDelayCountMapper.class);
+		job.setMapperClass(ArrivalDelayCountMapper.class);
 		job.setReducerClass(DelayCountReducer.class);
 
 		job.setInputFormatClass(TextInputFormat.class);
