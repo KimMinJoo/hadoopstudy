@@ -51,7 +51,7 @@
     </dependencies>
 
     <build>
-        <finalName>AirlienArrivalDealyCount</finalName>
+        <finalName>DelayCount</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
