@@ -1,5 +1,11 @@
 HADOOP STUDY
 
+프로그램 설명
+출발 지연 데이터분석프로그램
+com.naver.DepartureDelayCount클래스로 실행.
+실행법
+./bin/hadoop jar AirlienDealyCount.jar inputdir outputdir
+
 MapReduce 기초다지기
 
 MapReduce의 기본 개념 및 예제 프로그램은 MAPREDUCE.ver1브랜치에...
