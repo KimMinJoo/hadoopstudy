@@ -17,6 +17,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import com.naver.DelayCount;
+import com.naver.mapreduce.model.AirlineWorkResult;
 
 /**
  *
@@ -36,11 +37,15 @@ public class DelayCountMapper extends Mapper<LongWritable, Text, Text, IntWritab
 	public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 		WorkType workTypeProcess = WorkType.getInstance(workType);
 
-		Map<String, Object> map = workTypeProcess.getProcessMap().runMap(value);
+		AirlineWorkResult airlineWorkResult = workTypeProcess.getProcessMap().runMap(value);
 
-		if (MapUtils.getInteger(map, "value") != null) {
-			outputKey.set(MapUtils.getString(map, "key"));
+		if (airlineWorkResult.isWritable()) {
+			outputKey.set(airlineWorkResult.getKey());
 			context.write(outputKey, outputValue);
+		}
+
+		if (airlineWorkResult.getDelayCounters() != null) {
+			context.getCounter(airlineWorkResult.getDelayCounters()).increment(1);
 		}
 	}
 
